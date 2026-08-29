@@ -1,0 +1,6 @@
+case_id,diagnosis_id,ai_diagnosis,human_decision,corrected_diagnosis,reason_for_correction,lesson
+DEMO-001,,ACL blocks HTTPS,EDIT,ACL direction required confirmation,AI ignored interface direction,Always verify ACL attachment direction
+DEMO-002,,Layer 1 fault,EDIT,Wrong VLAN assignment,Switchport evidence established L2,Prefer direct rule evidence
+DEMO-003,,Missing DHCP server,REJECT,Pool subnet mismatch,Pool and interface networks differed,Compare addressing data
+DEMO-004,,Missing route,EDIT,ACL deny on transit path,ACL evidence was overlooked,Check all relevant layers
+DEMO-005,,NAT fault,REJECT,Duplicate IP addresses,Duplicate addresses explained ARP instability,Do not trust category labels over evidence

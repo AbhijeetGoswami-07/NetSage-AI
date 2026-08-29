@@ -1,0 +1,64 @@
+case_id,symptom,topology_note,show_outputs,expected_fault,osi_layer,concept_tag,severity
+CASE-001,PC-A cannot reach PC-B,Two access ports should be in VLAN 10,"Switch#show vlan brief
+10  USERS active Gi0/1, Gi0/2
+Switch#show interfaces Gi0/2 switchport
+Administrative Mode: static access
+Access Mode VLAN: 20",Gi0/2 is assigned to the wrong access VLAN,L2,VLAN,high
+CASE-002,Client receives no IP address,Router provides DHCP for the 192.168.20.0/24 LAN,"Router#show ip interface brief
+GigabitEthernet0/0 192.168.20.1 YES manual up up
+Router#show ip dhcp binding
+Bindings from all pools: none
+Router#show run | section dhcp
+ip dhcp pool USERS
+ network 192.168.30.0 255.255.255.0
+ default-router 192.168.30.1",DHCP pool network does not match the client LAN,L3,DHCP,high
+CASE-003,Remote LAN is unreachable,Branch router should reach 10.10.10.0/24 through the core,"Branch#show ip route
+C 192.168.50.0/24 is directly connected
+S* 0.0.0.0/0 [1/0] via 192.168.50.1
+Branch#show ip interface brief
+Gi0/1 192.168.50.2 YES manual up up",Route to 10.10.10.0/24 is missing,L3,routing,medium
+CASE-004,Users can browse but cannot reach the internal web server,Users enter through an edge router with an extended ACL,"Edge#show access-lists
+Extended IP access list OUTSIDE_IN
+10 deny tcp any host 10.10.10.10 eq 443
+20 permit ip any any
+Edge#show ip interface Gi0/0
+Inbound access list is OUTSIDE_IN",ACL explicitly denies HTTPS to the server,L4,ACL,high
+CASE-005,Two hosts report intermittent connectivity,Hosts are configured in the same subnet,"Switch#show ip interface brief
+Gi0/1 192.168.1.10 YES manual up up
+Gi0/2 192.168.1.10 YES manual up up
+Gi0/3 192.168.1.1 YES manual up up",Duplicate IP address appears on Gi0/1 and Gi0/2,L3,NAT,medium
+CASE-006,Users in VLAN 20 cannot communicate,Access switch connects to distribution switch,show vlan brief: 20 USERS active; show interfaces trunk: VLANs allowed 10 30,VLAN 20 is missing from the trunk allowed list,L2,VLAN,high
+CASE-007,Voice phones have no connectivity,Phone ports use voice VLAN 30,show interfaces Gi0/5 switchport: Access VLAN 10; Voice VLAN 1,Voice VLAN is not assigned on the phone port,L2,VLAN,high
+CASE-008,New switch ports are isolated,Access switch should provide VLAN 40,show vlan brief: 10 USERS active; 20 SERVERS active,VLAN 40 has not been created,L2,VLAN,medium
+CASE-009,Trunk negotiation fails,Two switches are connected on Gi0/1,show interfaces Gi0/1 switchport: Administrative Mode static access,Inter-switch link is configured as access instead of trunk,L2,VLAN,high
+CASE-010,Guest devices reach internal users,Guest network should remain isolated,show vlan brief: 50 GUEST active; show interfaces trunk: VLANs allowed all,Guest VLAN is unrestricted on the trunk,L2,VLAN,high
+CASE-011,Remote branch cannot reach HQ,Branch router connects through 10.0.0.1,show ip route: C 192.168.50.0/24 is directly connected,Route to 10.10.0.0/16 is missing,L3,Routing,high
+CASE-012,Default route points to wrong next hop,Edge router uplink is 192.0.2.2/30,show ip route: S* 0.0.0.0/0 via 192.0.2.6,Configured next hop is outside the uplink subnet,L3,Routing,high
+CASE-013,OSPF learned no routes,Two routers share area 0,show ip ospf neighbor: Neighbor count is 0,OSPF adjacency is not established,L3,Routing,medium
+CASE-014,Static route is inactive,Next hop should be reachable,show ip route 10.2.0.0: % Network not in table,Required static route is absent,L3,Routing,medium
+CASE-015,Inter-VLAN routing fails,Router-on-a-stick serves VLAN 20,show interfaces trunk: Native VLAN mismatch,Trunk native VLAN mismatch disrupts subinterfaces,L3,Routing,high
+CASE-016,Packets loop between routers,Core has redundant paths,show ip route: O 10.20.0.0/16 [110/20] via 10.0.0.2,Route instability requires protocol investigation,L3,Routing,medium
+CASE-017,Clients get APIPA addresses,Router serves 172.16.10.0/24,show ip dhcp binding: Bindings from all pools: none; show run: network 172.16.20.0 255.255.255.0,DHCP pool does not match the client LAN,L3,DHCP,high
+CASE-018,DHCP clients lack a gateway,Pool serves users VLAN 10,show run | section dhcp: ip dhcp pool USERS; network 192.168.10.0 255.255.255.0,Pool has no default-router option,L3,DHCP,medium
+CASE-019,Only some clients receive leases,Relay is configured on the SVI,show run interface vlan 20: ip helper-address 192.168.99.9,The DHCP server or relay path needs verification,L3,DHCP,medium
+CASE-020,DHCP pool is exhausted,Small lab subnet has eight addresses,show ip dhcp pool USERS: Leased 8; Excluded addresses 0,Pool has no available addresses,L3,DHCP,medium
+CASE-021,Clients receive an invalid DNS server,Router distributes DNS settings,show run | section dhcp: dns-server 192.168.200.5,DHCP advertises an unreachable DNS server,L3,DHCP,medium
+CASE-022,Users cannot resolve names,IP connectivity to DNS exists,show ip name-server 192.168.99.99; ping 192.168.99.99: timeout,Configured DNS server is unreachable,L7,DNS,high
+CASE-023,Internal names resolve externally,Split DNS is required,show run: ip name-server 8.8.8.8,Internal DNS server is not configured,L7,DNS,medium
+CASE-024,Short hostnames fail,Domain suffix should be lab.local,show run: ip domain-name example.invalid,Configured DNS suffix is incorrect,L7,DNS,low
+CASE-025,DNS replies are slow,Resolver forwards to two servers,show hosts: 192.0.2.53 temporary failure; 192.0.2.54 reachable,Primary resolver is unavailable,L7,DNS,medium
+CASE-026,HTTPS server is unreachable,Edge ACL is inbound on outside interface,show access-lists: 10 deny tcp any host 10.10.10.10 eq 443,ACL explicitly denies HTTPS,L4,ACL,high
+CASE-027,SSH access is blocked,Management subnet should reach router,show access-lists: 20 deny tcp 192.168.20.0 0.0.0.255 any eq 22,ACL denies SSH from management subnet,L4,ACL,high
+CASE-028,Internet access stopped after ACL edit,Users need outbound web access,show access-lists: 10 deny ip 192.168.10.0 0.0.0.255 any; 20 permit ip any any,ACL denies the user subnet,L3,ACL,high
+CASE-029,ICMP monitoring fails,Monitoring host should ping devices,show access-lists: 10 deny icmp any any,ACL blocks all ICMP,L3,ACL,medium
+CASE-030,ACL has no effect,ACL was intended for Gi0/1 inbound,show ip interface Gi0/1: Inbound access list is not set,ACL is not attached to the intended interface,L3,ACL,medium
+CASE-031,Inside hosts have no translations,NAT overload is configured at the edge,show ip nat translations: Pro Inside global none; show ip interface: outside up up,NAT translations are not being created,L3,NAT,high
+CASE-032,Static NAT maps the wrong server,Public server should be 203.0.113.10,show run: ip nat inside source static 10.0.0.20 203.0.113.10,Static NAT points to the wrong inside address,L3,NAT,high
+CASE-033,Internet addresses are exhausted,Many clients share one pool,show ip nat statistics: Hits 0; Misses 400; Outside interfaces 1,NAT traffic is not matching the translation policy,L3,NAT,medium
+CASE-034,NAT works one way,Inside and outside interfaces are configured,show ip interface Gi0/0: ip nat inside; Gi0/1: no ip nat outside,Outside interface role is missing,L3,NAT,high
+CASE-035,Hosts report unreachable gateway,PC subnet is 192.168.70.0/24,PC IP 192.168.70.20 mask 255.255.255.0 gateway 192.168.80.1,Gateway is outside the host subnet,L3,Default Gateway,high
+CASE-036,Host has an invalid address,Address should be IPv4 unicast,show ip interface brief: Gi0/2 999.1.1.1 YES manual up up,Interface has an invalid IPv4 address,L3,Default Gateway,high
+CASE-037,Clients cannot reach other subnets,Router SVI is the default gateway,show run interface vlan 10: ip address 192.168.10.1 255.255.0.0,Subnet mask does not match the addressing plan,L3,Default Gateway,medium
+CASE-038,Wireless clients cannot join,AP should advertise STUDENT,show running-config: no dot11 ssid STUDENT,Expected wireless SSID is not configured,L2,Wireless,medium
+CASE-039,Wireless clients authenticate but have no network,AP uplink should carry VLAN 30,show interfaces trunk: VLANs allowed 10 20; VLAN 30 absent,Wireless VLAN is not allowed on the uplink,L2,Wireless,high
+CASE-040,Access point has intermittent service,AP is powered through PoE switch,show interfaces Gi0/24: administratively down,AP switch port is administratively down,L1,Interface/Connectivity,high

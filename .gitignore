@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.venv/
+.env
+.vscode/
+output/
+results/*.json
+results/*.csv
+!results/*.template.csv
+data/*.db
+.pytest_cache/
+.ipynb_checkpoints/
