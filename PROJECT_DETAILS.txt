@@ -1,0 +1,154 @@
+================================================================================
+                    NETSAGE AI - PROJECT OVERVIEW & MANUAL
+================================================================================
+Project Name  : NetSage AI (Evidence-Backed AI Network Troubleshooting Assistant)
+Author/Repo   : AbhijeetGoswami-07/NetSage-AI
+Interface     : Streamlit Web Dashboard (Default URL: http://localhost:8501)
+Architecture  : Python 3.11+, Streamlit, SQLite, Deterministic Rule Engine, Live AI
+================================================================================
+
+
+1. WHAT IS THIS PROJECT?
+--------------------------------------------------------------------------------
+NetSage AI is an intelligent, evidence-backed network diagnostic and operations
+assistant tailored for enterprise networks and Cisco laboratory environments 
+(Packet Tracer, GNS3, EVE-NG, and real hardware).
+
+Traditional AI chatbots often "hallucinate" or provide vague advice. NetSage AI
+solves this problem by enforcing STRICT EVIDENCE CITATION and a TWO-TIER ENGINE:
+  a) A Deterministic Algorithmic Rule Engine that checks standard Cisco syntax,
+     IP addressing, VLAN tagging, MTU sizing, and routing protocols.
+  b) An AI Diagnostic Model that correlates observable symptoms with actual 
+     Cisco CLI show-command outputs.
+  c) A Mandatory Human-In-The-Loop Review Gate ensuring no remediation command 
+     is applied without engineering review and sign-off.
+
+
+2. WHAT CAN THIS PROJECT DO? (CORE CAPABILITIES)
+--------------------------------------------------------------------------------
+* EVIDENCE-GROUNDED ROOT CAUSE ANALYSIS:
+  Takes raw Cisco CLI show-commands (e.g., "show ip ospf neighbor", 
+  "show interfaces trunk", "show access-lists") and identifies exact root causes 
+  with line-by-line evidence citations.
+
+* DETERMINISTIC CISCO RULE ENGINE:
+  Contains 10 specialized rule modules checking for:
+  - Native VLAN trunk mismatches
+  - OSPF neighbor MTU and area ID discrepancies
+  - Duplicate IP addresses and ARP flapping
+  - ACL rule ordering and implicit/explicit drop behaviors
+  - Interface administrative shutdowns and duplex/speed mismatches
+  - Subnet mask misconfigurations and default gateway unreachable states
+
+* DUAL-ENGINE OPERATION (FLEXIBLE DEPLOYMENT):
+  - Local Demo Mode: 100% offline, deterministic, zero API cost, works out of
+    the box without requiring any API keys.
+  - Live AI Mode: Connects to OpenAI (GPT-4o / GPT-4o-mini) or any compatible 
+    LLM endpoint for advanced natural language diagnostics.
+
+* HUMAN-IN-THE-LOOP AUDIT GATE:
+  Every AI diagnosis must pass through an engineer review:
+  - ACCEPT : Confirms diagnosis is accurate.
+  - EDIT   : Corrects the root cause and logs feedback for model improvement.
+  - REJECT : Rejects incorrect diagnosis with mandatory justification.
+
+* BEFORE-AND-AFTER VERIFICATION TRACKING:
+  Logs initial failure states against post-fix test states (e.g., ping loss, 
+  traceroute hops) and automatically calculates verification outcome:
+  [PASSED / FAILED / INCONCLUSIVE].
+
+* RESPONSIBLE AI & AUDIT DRIFT LOG:
+  Maintains a transparent SQLite ledger recording human overrides, rationale,
+  and engineering lessons learned to audit system accuracy and prevent model drift.
+
+* 1-CLICK TEST PRESETS:
+  Includes built-in pre-configured scenarios (VLAN Trunk Mismatch, OSPF MTU 
+  Discrepancy, IP Address Collision, ACL Denials) to test the app in 1 click.
+
+
+3. WHAT ARE THE REAL-WORLD USES OF THIS PROJECT?
+--------------------------------------------------------------------------------
+* Cisco Lab Students & Certifications:
+  Ideal companion for students preparing for Cisco CCNA, CCNP, and CCIE labs
+  in Cisco Packet Tracer or GNS3 to understand why network configurations fail.
+
+* Network Operations Centers (NOC) & Tier-1/Tier-2 Support:
+  Accelerates triage by automatically analyzing log dumps and show-command outputs
+  when escalations occur, suggesting immediate next commands and fix runbooks.
+
+* Enterprise IT & Network Engineering Teams:
+  Acts as an auditable second pair of eyes that double-checks network changes 
+  and maintains a historical repository of past outages and resolved cases.
+
+* Education & Training Classrooms:
+  Instructors can demonstrate deterministic verification, root-cause methodology,
+  and ethical/responsible AI auditing in computer networking curricula.
+
+
+4. PROJECT ARCHITECTURE & FILE STRUCTURE
+--------------------------------------------------------------------------------
+NetSage-AI/
+│
+├── app.py                   # Main Streamlit SaaS application & UI
+├── requirements.txt         # Project dependencies (pinned to stable versions)
+├── run.bat / start.bat      # 1-Click Windows Command Prompt launchers
+├── run.ps1                  # PowerShell execution script
+├── run_tests.bat            # Automated test suite launcher (pytest)
+├── .env                     # Environment settings (API keys, models)
+├── .env.example             # Template for environment settings
+│
+├── ai/                      # AI diagnostic engine & prompt templates
+│   ├── ai_client.py         # Live LLM client with local fallback
+│   ├── fallback_diagnosis.py# Offline deterministic diagnosis generator
+│   └── prompt_builder.py    # Structured JSON prompt construction
+│
+├── rules/                   # Deterministic Cisco validation rules
+│   ├── rule_engine.py       # Core rule evaluator
+│   ├── acl_rules.py         # Access-list check rules
+│   ├── vlan_rules.py        # Trunking and VLAN checks
+│   ├── routing_rules.py     # OSPF, EIGRP, and static routing checks
+│   └── ip_rules.py          # IP/ARP conflict checks
+│
+├── database/                # SQLite database persistence layer
+│   ├── db.py                # Database queries and transactions
+│   ├── schema.sql           # Schema definition for cases, reviews, logs
+│   └── seed_database.py     # Database seeder with 40 benchmark cases
+│
+├── data/                    # Datasets and database file
+│   ├── cases.csv            # 40 pre-configured Cisco incident cases
+│   └── netsage.db           # Persistent SQLite database file
+│
+├── services/                # Business logic services
+│   ├── diagnosis_service.py # Diagnostic pipeline orchestration
+│   ├── case_service.py      # Case creation, search, and retrieval
+│   ├── review_service.py    # Human review logging and audit
+│   └── verification_service.py # Pre/post fix test verification
+│
+└── tests/                   # Pytest test suite (42 unit and E2E tests)
+
+
+5. HOW TO RUN THE PROJECT
+--------------------------------------------------------------------------------
+Method 1 (Easiest - Double Click):
+  Simply double-click "run.bat" or "start.bat" in the project folder.
+  The script will start the server and open http://localhost:8501 automatically.
+
+Method 2 (PowerShell):
+  Open PowerShell in the project directory and run:
+    .\run.ps1
+
+Method 3 (Manual Terminal):
+    .venv\Scripts\activate
+    streamlit run app.py
+
+To run automated tests anytime:
+  Double-click "run_tests.bat" or run:
+    .venv\Scripts\pytest -v
+
+
+6. BACKUP LOCATIONS ON THIS COMPUTER
+--------------------------------------------------------------------------------
+1. Active Workspace : C:\Users\abhij\Documents\antigravity\peaceful-davinci\
+2. Ready-to-Run Dir : D:\NetSage-AI\
+3. Portable Archive : D:\NetSage-AI.zip
+================================================================================
